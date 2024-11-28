@@ -112,11 +112,18 @@ const styles = StyleSheet.create({
   time: {
     fontSize: 64,
     color: "white",
+    textShadowColor: "black",
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 10,
   },
   date: {
     fontSize: 20,
     color: "white",
     marginBottom: 30,
+    textShadowColor: "black",
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 10,
+
   },
   dataContainer: {
     flexDirection: "column",
