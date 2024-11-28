@@ -123,7 +123,6 @@ const styles = StyleSheet.create({
     textShadowColor: "black",
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 10,
-
   },
   dataContainer: {
     flexDirection: "column",
