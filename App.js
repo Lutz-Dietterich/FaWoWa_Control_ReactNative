@@ -48,8 +48,10 @@ const App = () => {
       style={styles.background}
     >
       <View style={styles.container}>
-        <Text style={styles.time}>{currentTime}</Text>
-        <Text style={styles.date}>{currentDate}</Text>
+        <View style={styles.timeContainer}>
+          <Text style={styles.time}>{currentTime}</Text>
+          <Text style={styles.date}>{currentDate}</Text>
+        </View>
 
         <View style={styles.dataContainer}>
           <View style={styles.dataColumn}>
@@ -102,6 +104,11 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
   },
+  timeContainer: {
+    flexDirection: "column",
+    alignItems: "center",
+    marginTop: 100,
+  },
   time: {
     fontSize: 64,
     color: "white",
@@ -114,7 +121,7 @@ const styles = StyleSheet.create({
   dataContainer: {
     flexDirection: "column",
     alignItems: "center",
-    marginTop: 30,
+    marginTop: 100,
   },
   dataColumn: {
     flexDirection: "row",
