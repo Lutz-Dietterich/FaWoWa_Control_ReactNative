@@ -51,6 +51,7 @@ const App = () => {
         <View style={styles.timeContainer}>
           <Text style={styles.time}>{currentTime}</Text>
           <Text style={styles.date}>{currentDate}</Text>
+
         </View>
 
         <View style={styles.dataContainer}>
@@ -138,7 +139,7 @@ const styles = StyleSheet.create({
   },
   dataTitle: {
     fontSize: 30,
-    color: "white",
+    color: "violet",
     marginBottom: 5,
     paddingHorizontal: 20,
   },
