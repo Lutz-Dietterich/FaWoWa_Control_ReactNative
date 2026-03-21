@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/lutzdietterich/Dev/projekte/Fahrradwohnwagen/Bike-Camper-Control/**)",
+      "Bash(ls /Users/lutzdietterich/Dev/projekte/Fahrradwohnwagen/FaWoWa-Control_reactNative/assets/*.svg)"
+    ]
+  }
+}

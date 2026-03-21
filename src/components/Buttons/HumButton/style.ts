@@ -1,8 +1,8 @@
 import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  button: {
+    padding: 4,
     alignItems: "center",
     justifyContent: "center",
   },

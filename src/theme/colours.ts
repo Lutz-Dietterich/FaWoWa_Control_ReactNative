@@ -7,7 +7,7 @@ const colours = {
 
   background: {
     overlay: "rgba(0, 0, 0, 0.35)",
-    card: "rgba(0, 0, 0, 0.45)",
+    card: "rgba(0, 0, 0, 0.65)",
     dark: "#1A2E1A",
   },
 
