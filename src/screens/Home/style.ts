@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import colours from "../../theme/colours";
 
 const styles = StyleSheet.create({
   background: {
@@ -16,16 +17,16 @@ const styles = StyleSheet.create({
   },
   time: {
     fontSize: 64,
-    color: "white",
-    textShadowColor: "black",
+    color: colours.text.primary,
+    textShadowColor: colours.shadow.default,
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 10,
   },
   date: {
     fontSize: 20,
-    color: "white",
+    color: colours.text.primary,
     marginBottom: 30,
-    textShadowColor: "black",
+    textShadowColor: colours.shadow.default,
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 10,
   },
@@ -43,13 +44,13 @@ const styles = StyleSheet.create({
   },
   dataTitle: {
     fontSize: 30,
-    color: "white",
+    color: colours.text.primary,
     marginBottom: 5,
     paddingHorizontal: 20,
   },
   dataValue: {
     fontSize: 30,
-    color: "white",
+    color: colours.text.primary,
     paddingHorizontal: 10,
   },
   dataCenter: {
@@ -60,13 +61,13 @@ const styles = StyleSheet.create({
   },
   autoText: {
     fontSize: 18,
-    color: "lime",
+    color: colours.text.accent,
     marginVertical: 10,
   },
   icon: {
     width: 24,
     height: 24,
-    tintColor: "white",
+    tintColor: colours.text.primary,
   },
   largeIcon: {
     width: 50,

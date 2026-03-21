@@ -1,8 +1,10 @@
 import { StyleSheet } from "react-native";
+import colours from "../../../theme/colours";
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    backgroundColor: colours.background.dark,
   },
   headerContainer: {
     width: "100%",
