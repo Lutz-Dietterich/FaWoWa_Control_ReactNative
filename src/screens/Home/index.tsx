@@ -3,10 +3,13 @@ import {
   View,
   Text,
   ImageBackground,
-  Image,
   Animated,
   Easing,
 } from "react-native";
+import IconTemp from "../../../assets/iconTemp.svg";
+import IconHum from "../../../assets/iconHum.svg";
+import IconFan from "../../../assets/iconFan1.svg";
+import IconClock from "../../../assets/iconClock.svg";
 import styles from "./style";
 
 const HomeScreen = () => {
@@ -37,18 +40,15 @@ const HomeScreen = () => {
   const rotateValue = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    const rotateAnimation = () => {
-      rotateValue.setValue(0);
-      Animated.loop(
-        Animated.timing(rotateValue, {
-          toValue: 1,
-          duration: 2000,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        })
-      ).start();
-    };
-    rotateAnimation();
+    rotateValue.setValue(0);
+    Animated.loop(
+      Animated.timing(rotateValue, {
+        toValue: 1,
+        duration: 2000,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    ).start();
   }, [rotateValue]);
 
   const rotation = rotateValue.interpolate({
@@ -70,26 +70,25 @@ const HomeScreen = () => {
         <View style={styles.dataContainer}>
           <View style={styles.dataColumn}>
             <Text style={styles.dataTitle}>IN</Text>
-            <Image source={require("../../../assets/temperatur.png")} style={styles.icon} />
+            <IconTemp width={24} height={24} />
             <Text style={styles.dataValue}>20°C</Text>
-            <Image source={require("../../../assets/wind.png")} style={styles.icon} />
+            <IconHum width={24} height={24} />
             <Text style={styles.dataValue}>50%</Text>
           </View>
 
           <View style={styles.dataCenter}>
-            <Animated.Image
-              source={require("../../../assets/fan.png")}
-              style={[styles.largeIcon, { transform: [{ rotate: rotation }] }]}
-            />
+            <Animated.View style={{ transform: [{ rotate: rotation }] }}>
+              <IconFan width={50} height={50} />
+            </Animated.View>
             <Text style={styles.autoText}>AUTO</Text>
-            <Image source={require("../../../assets/clock.png")} style={styles.largeIcon} />
+            <IconClock width={50} height={50} />
           </View>
 
           <View style={styles.dataColumn}>
             <Text style={styles.dataTitle}>OUT</Text>
-            <Image source={require("../../../assets/temperatur.png")} style={styles.icon} />
+            <IconTemp width={24} height={24} />
             <Text style={styles.dataValue}>20°C</Text>
-            <Image source={require("../../../assets/wind.png")} style={styles.icon} />
+            <IconHum width={24} height={24} />
             <Text style={styles.dataValue}>50%</Text>
           </View>
         </View>
