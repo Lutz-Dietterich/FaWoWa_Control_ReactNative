@@ -1,3 +1,4 @@
+import { ImageBackground } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -21,18 +22,23 @@ const ICON_SIZE = 28;
 
 export default function Navigation() {
   return (
-    <NavigationContainer>
+    <ImageBackground
+      source={require("../../assets/background.jpg")}
+      style={{ flex: 1 }}
+    >
+      <NavigationContainer>
       <Tab.Navigator
         tabBarPosition="bottom"
         screenOptions={{
           tabBarStyle: {
-            backgroundColor: colours.background.card,
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
             borderTopWidth: 0,
             elevation: 0,
           },
           tabBarShowLabel: false,
           tabBarIndicatorStyle: { height: 0 },
           swipeEnabled: true,
+          sceneStyle: { backgroundColor: "transparent" },
         }}
       >
         <Tab.Screen
@@ -86,5 +92,6 @@ export default function Navigation() {
         />
       </Tab.Navigator>
     </NavigationContainer>
+    </ImageBackground>
   );
 }
