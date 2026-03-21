@@ -1,10 +1,10 @@
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import HomeScreen from "./src/screens/Home";
+import Navigation from "./src/navigation";
 
 const App = () => {
   return (
     <SafeAreaProvider>
-      <HomeScreen />
+      <Navigation />
     </SafeAreaProvider>
   );
 };
