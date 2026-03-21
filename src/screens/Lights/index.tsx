@@ -7,10 +7,10 @@ export default function LightsScreen() {
   return (
     <ScreenLayout scrollable={true}>
       <View style={styles.grid}>
-        <LightCard title="Alle Lampen" />
-        <LightCard title="Raum" />
-        <LightCard title="Fach" />
-        <LightCard title="Alfred" />
+        <LightCard title="Alle Lampen" id="alle" />
+        <LightCard title="Raum" id="raum" />
+        <LightCard title="Fach" id="fach" />
+        <LightCard title="Alfred" id="alfred" />
       </View>
     </ScreenLayout>
   );

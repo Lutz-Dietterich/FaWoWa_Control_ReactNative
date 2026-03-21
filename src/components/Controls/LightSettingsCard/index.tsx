@@ -1,10 +1,11 @@
-import { useState } from "react";
 import { View, Text, Modal, TouchableOpacity, Pressable } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useLightsStore, LightId } from "../../../store/lightsStore";
 import styles from "./style";
 
 interface LightSettingsCardProps {
   title: string;
+  id: LightId;
   visible: boolean;
   onClose: () => void;
 }
@@ -22,9 +23,10 @@ const QUICK_COLORS = [
 
 const BRIGHTNESS_PRESETS = [25, 50, 75, 100];
 
-export default function LightSettingsCard({ title, visible, onClose }: LightSettingsCardProps) {
-  const [color, setColor] = useState("#FFFFFF");
-  const [brightness, setBrightness] = useState(50);
+export default function LightSettingsCard({ title, id, visible, onClose }: LightSettingsCardProps) {
+  const light = useLightsStore((s) => s.lights[id]);
+  const setColor = useLightsStore((s) => s.setColor);
+  const setBrightness = useLightsStore((s) => s.setBrightness);
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -42,8 +44,8 @@ export default function LightSettingsCard({ title, visible, onClose }: LightSett
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Farbauswahl</Text>
             <View style={styles.colorPreview}>
-              <View style={[styles.colorCircle, { backgroundColor: color }]} />
-              <Text style={styles.colorLabel}>{color}</Text>
+              <View style={[styles.colorCircle, { backgroundColor: light.color }]} />
+              <Text style={styles.colorLabel}>{light.color}</Text>
             </View>
             <View style={styles.quickColors}>
               {QUICK_COLORS.map((c) => (
@@ -52,9 +54,9 @@ export default function LightSettingsCard({ title, visible, onClose }: LightSett
                   style={[
                     styles.colorButton,
                     { backgroundColor: c },
-                    color === c && styles.colorButtonActive,
+                    light.color === c && styles.colorButtonActive,
                   ]}
-                  onPress={() => setColor(c)}
+                  onPress={() => setColor(id, c)}
                 />
               ))}
             </View>
@@ -62,21 +64,21 @@ export default function LightSettingsCard({ title, visible, onClose }: LightSett
 
           {/* Helligkeit */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Helligkeit: {brightness}%</Text>
+            <Text style={styles.sectionTitle}>Helligkeit: {light.brightness}%</Text>
             <View style={styles.brightnessButtons}>
               {BRIGHTNESS_PRESETS.map((val) => (
                 <TouchableOpacity
                   key={val}
                   style={[
                     styles.brightnessButton,
-                    brightness === val && styles.brightnessButtonActive,
+                    light.brightness === val && styles.brightnessButtonActive,
                   ]}
-                  onPress={() => setBrightness(val)}
+                  onPress={() => setBrightness(id, val)}
                 >
                   <Text
                     style={[
                       styles.brightnessButtonText,
-                      brightness === val && styles.brightnessButtonTextActive,
+                      light.brightness === val && styles.brightnessButtonTextActive,
                     ]}
                   >
                     {val}%

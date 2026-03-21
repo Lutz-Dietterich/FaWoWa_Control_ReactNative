@@ -4,12 +4,16 @@ import SetpointDisplay from "../SetpointDisplay";
 import StepButton from "../../Buttons/StepButton";
 import TempButton from "../../Buttons/TempButton";
 import HumButton from "../../Buttons/HumButton";
+import { useFanStore } from "../../../store/fanStore";
 import styles from "./style";
 
 export default function SettingsCard() {
   const [mode, setMode] = useState<"temp" | "hum">("temp");
-  const [valueTemp, setValueTemp] = useState(25);
-  const [valueHum, setValueHum] = useState(60);
+
+  const targetTemp = useFanStore((s) => s.targetTemp);
+  const targetHumidity = useFanStore((s) => s.targetHumidity);
+  const setTargetTemp = useFanStore((s) => s.setTargetTemp);
+  const setTargetHumidity = useFanStore((s) => s.setTargetHumidity);
 
   const isTemp = mode === "temp";
   const isHum = mode === "hum";
@@ -17,15 +21,15 @@ export default function SettingsCard() {
   return (
     <View style={styles.card}>
       <Text style={styles.title}>{isTemp ? "Temperatur" : "Luftfeuchigkeit"}</Text>
-      <SetpointDisplay isTemp={isTemp} value={isTemp ? valueTemp : valueHum} />
+      <SetpointDisplay isTemp={isTemp} value={isTemp ? targetTemp : targetHumidity} />
       <View style={styles.gaugeButtonContainer}>
         <StepButton
           type="minus"
           onPress={() => {
             if (isTemp) {
-              if (valueTemp > 0) setValueTemp(valueTemp - 1);
+              if (targetTemp > 0) setTargetTemp(targetTemp - 1);
             } else {
-              if (valueHum > 0) setValueHum(valueHum - 1);
+              if (targetHumidity > 0) setTargetHumidity(targetHumidity - 1);
             }
           }}
         />
@@ -33,9 +37,9 @@ export default function SettingsCard() {
           type="plus"
           onPress={() => {
             if (isTemp) {
-              if (valueTemp < 35) setValueTemp(valueTemp + 1);
+              if (targetTemp < 35) setTargetTemp(targetTemp + 1);
             } else {
-              if (valueHum < 100) setValueHum(valueHum + 1);
+              if (targetHumidity < 100) setTargetHumidity(targetHumidity + 1);
             }
           }}
         />

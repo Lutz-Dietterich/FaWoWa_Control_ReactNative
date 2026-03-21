@@ -5,6 +5,8 @@ import IconHum from "../../../assets/iconHumLight.svg";
 import IconFan from "../../../assets/icon-vent-status.svg";
 import IconClock from "../../../assets/iconClock.svg";
 import ScreenLayout from "../../components/Layout/ScreenLayout";
+import { useSensorStore } from "../../store/sensorStore";
+import { useFanStore } from "../../store/fanStore";
 import styles from "./style";
 
 const HomeScreen = () => {
@@ -51,6 +53,13 @@ const HomeScreen = () => {
     outputRange: ["0deg", "360deg"],
   });
 
+  const temperature = useSensorStore((s) => s.temperature);
+  const humidity = useSensorStore((s) => s.humidity);
+  const autoMode = useFanStore((s) => s.autoMode);
+
+  const formatTemp = (val: number | null) => (val !== null ? `${val}°C` : "--");
+  const formatHum = (val: number | null) => (val !== null ? `${val}%` : "--");
+
   return (
     <ScreenLayout scrollable={false}>
       <View style={styles.container}>
@@ -64,11 +73,11 @@ const HomeScreen = () => {
             <Text style={styles.dataTitle}>IN</Text>
             <View style={styles.dataItem}>
               <IconTemp width={32} height={32} />
-              <Text style={styles.dataValue}>20°C</Text>
+              <Text style={styles.dataValue}>{formatTemp(temperature)}</Text>
             </View>
             <View style={styles.dataItem}>
               <IconHum width={32} height={32} />
-              <Text style={styles.dataValue}>50%</Text>
+              <Text style={styles.dataValue}>{formatHum(humidity)}</Text>
             </View>
           </View>
 
@@ -76,7 +85,7 @@ const HomeScreen = () => {
             <Animated.View style={{ transform: [{ rotate: rotation }] }}>
               <IconFan width={50} height={50} />
             </Animated.View>
-            <Text style={styles.autoText}>AUTO</Text>
+            <Text style={styles.autoText}>{autoMode ? "AUTO" : "MANUELL"}</Text>
             <IconClock width={50} height={50} />
           </View>
 
@@ -84,11 +93,11 @@ const HomeScreen = () => {
             <Text style={styles.dataTitle}>OUT</Text>
             <View style={styles.dataItem}>
               <IconTemp width={32} height={32} />
-              <Text style={styles.dataValue}>20°C</Text>
+              <Text style={styles.dataValue}>--</Text>
             </View>
             <View style={styles.dataItem}>
               <IconHum width={32} height={32} />
-              <Text style={styles.dataValue}>50%</Text>
+              <Text style={styles.dataValue}>--</Text>
             </View>
           </View>
         </View>
