@@ -34,3 +34,8 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# EAS local builds
+*.apk
+*.aab
+build-*.tar.gz

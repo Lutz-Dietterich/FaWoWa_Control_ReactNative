@@ -19,7 +19,13 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_CONNECT"
+      ],
+      "package": "com.lutz_dietterich.FaWoWaControl_reactNative"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -27,6 +33,11 @@
     "plugins": [
       "expo-asset",
       "react-native-ble-plx"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "9c3cc1a7-48d8-4e60-b55f-ec3662e96319"
+      }
+    }
   }
 }
