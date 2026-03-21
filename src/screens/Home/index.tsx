@@ -1,15 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  ImageBackground,
-  Animated,
-  Easing,
-} from "react-native";
+import { View, Text, Animated, Easing } from "react-native";
 import IconTemp from "../../../assets/iconTempLight.svg";
 import IconHum from "../../../assets/iconHumLight.svg";
 import IconFan from "../../../assets/icon-vent-status.svg";
 import IconClock from "../../../assets/iconClock.svg";
+import ScreenLayout from "../../components/Layout/ScreenLayout";
 import styles from "./style";
 
 const HomeScreen = () => {
@@ -57,10 +52,7 @@ const HomeScreen = () => {
   });
 
   return (
-    <ImageBackground
-      source={require("../../../assets/background.jpg")}
-      style={styles.background}
-    >
+    <ScreenLayout scrollable={false}>
       <View style={styles.container}>
         <View style={styles.timeContainer}>
           <Text style={styles.time}>{currentTime}</Text>
@@ -101,7 +93,7 @@ const HomeScreen = () => {
           </View>
         </View>
       </View>
-    </ImageBackground>
+    </ScreenLayout>
   );
 };
 
