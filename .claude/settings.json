@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Read(//Users/lutzdietterich/Dev/projekte/Fahrradwohnwagen/Bike-Camper-Control/**)",
-      "Bash(ls /Users/lutzdietterich/Dev/projekte/Fahrradwohnwagen/FaWoWa-Control_reactNative/assets/*.svg)"
+      "Bash(ls /Users/lutzdietterich/Dev/projekte/Fahrradwohnwagen/FaWoWa-Control_reactNative/assets/*.svg)",
+      "Bash(find /Users/lutzdietterich/Dev/projekte/Fahrradwohnwagen/Bike-Camper-Control/nextjs-frontend -path */node_modules -prune -o -type f \\\\\\(-name *[Ll]ight* -o -name *[Ll]ed* \\\\\\) -print)"
     ]
   }
 }

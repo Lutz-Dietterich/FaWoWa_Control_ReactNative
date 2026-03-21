@@ -1,12 +1,16 @@
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import ScreenLayout from "../../components/Layout/ScreenLayout";
+import LightCard from "../../components/Controls/LightCard";
 import styles from "./style";
 
 export default function LightsScreen() {
   return (
-    <ScreenLayout scrollable={false}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Licht</Text>
+    <ScreenLayout scrollable={true}>
+      <View style={styles.grid}>
+        <LightCard title="Alle Lampen" />
+        <LightCard title="Raum" />
+        <LightCard title="Fach" />
+        <LightCard title="Alfred" />
       </View>
     </ScreenLayout>
   );
