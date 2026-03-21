@@ -45,13 +45,17 @@ const styles = StyleSheet.create({
   dataTitle: {
     fontSize: 30,
     color: colours.text.primary,
-    marginBottom: 5,
-    paddingHorizontal: 20,
+    marginRight: 8,
+  },
+  dataItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginLeft: 16,
   },
   dataValue: {
     fontSize: 30,
     color: colours.text.primary,
-    paddingHorizontal: 10,
+    marginLeft: 6,
   },
   dataCenter: {
     flexDirection: "row",

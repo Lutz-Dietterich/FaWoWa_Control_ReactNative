@@ -6,9 +6,9 @@ import {
   Animated,
   Easing,
 } from "react-native";
-import IconTemp from "../../../assets/iconTemp.svg";
-import IconHum from "../../../assets/iconHum.svg";
-import IconFan from "../../../assets/iconFan1.svg";
+import IconTemp from "../../../assets/iconTempLight.svg";
+import IconHum from "../../../assets/iconHumLight.svg";
+import IconFan from "../../../assets/icon-vent-status.svg";
 import IconClock from "../../../assets/iconClock.svg";
 import styles from "./style";
 
@@ -70,10 +70,14 @@ const HomeScreen = () => {
         <View style={styles.dataContainer}>
           <View style={styles.dataColumn}>
             <Text style={styles.dataTitle}>IN</Text>
-            <IconTemp width={24} height={24} />
-            <Text style={styles.dataValue}>20°C</Text>
-            <IconHum width={24} height={24} />
-            <Text style={styles.dataValue}>50%</Text>
+            <View style={styles.dataItem}>
+              <IconTemp width={32} height={32} />
+              <Text style={styles.dataValue}>20°C</Text>
+            </View>
+            <View style={styles.dataItem}>
+              <IconHum width={32} height={32} />
+              <Text style={styles.dataValue}>50%</Text>
+            </View>
           </View>
 
           <View style={styles.dataCenter}>
@@ -86,10 +90,14 @@ const HomeScreen = () => {
 
           <View style={styles.dataColumn}>
             <Text style={styles.dataTitle}>OUT</Text>
-            <IconTemp width={24} height={24} />
-            <Text style={styles.dataValue}>20°C</Text>
-            <IconHum width={24} height={24} />
-            <Text style={styles.dataValue}>50%</Text>
+            <View style={styles.dataItem}>
+              <IconTemp width={32} height={32} />
+              <Text style={styles.dataValue}>20°C</Text>
+            </View>
+            <View style={styles.dataItem}>
+              <IconHum width={32} height={32} />
+              <Text style={styles.dataValue}>50%</Text>
+            </View>
           </View>
         </View>
       </View>
