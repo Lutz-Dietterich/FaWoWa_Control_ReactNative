@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { View, Text, Animated, Easing } from "react-native";
+import { useBluetoothStore } from "../../store/bluetoothStore";
 import IconTemp from "../../../assets/iconTempLight.svg";
 import IconHum from "../../../assets/iconHumLight.svg";
 import IconFan from "../../../assets/icon-vent-status.svg";
@@ -53,6 +54,7 @@ const HomeScreen = () => {
     outputRange: ["0deg", "360deg"],
   });
 
+  const connect = useBluetoothStore((s) => s.connect);
   const temperature = useSensorStore((s) => s.temperature);
   const humidity = useSensorStore((s) => s.humidity);
   const autoMode = useFanStore((s) => s.autoMode);
@@ -61,7 +63,7 @@ const HomeScreen = () => {
   const formatHum = (val: number | null) => (val !== null ? `${val}%` : "--");
 
   return (
-    <ScreenLayout scrollable={false}>
+    <ScreenLayout scrollable={false} onRefresh={connect}>
       <View style={styles.container}>
         <View style={styles.timeContainer}>
           <Text style={styles.time}>{currentTime}</Text>

@@ -71,6 +71,12 @@ export const useBluetoothStore = create<BluetoothStore>((set, get) => ({
       return;
     }
 
+    // Vorherige Verbindung/Scan sauber beenden
+    bleManager.stopDeviceScan();
+    get().subscription?.remove();
+    await get().device?.cancelConnection().catch(() => {});
+    set({ subscription: null, device: null, isConnected: false });
+
     set({ connectionState: "scanning" });
 
     bleManager.startDeviceScan(null, null, async (error: BleError | null, device: Device | null) => {
