@@ -65,6 +65,9 @@ export const useBluetoothStore = create<BluetoothStore>((set, get) => ({
   subscription: null,
 
   connect: async () => {
+    const state = get().connectionState;
+    if (state === "scanning" || state === "connecting") return;
+
     const hasPermission = await requestAndroidPermissions();
     if (!hasPermission) {
       console.warn("[BLE] Berechtigungen fehlen");
@@ -74,8 +77,10 @@ export const useBluetoothStore = create<BluetoothStore>((set, get) => ({
     // Vorherige Verbindung/Scan sauber beenden
     bleManager.stopDeviceScan();
     get().subscription?.remove();
-    await get().device?.cancelConnection().catch(() => {});
+    await get().device?.cancelConnection()?.catch(() => {});
     set({ subscription: null, device: null, isConnected: false });
+
+    await new Promise((r) => setTimeout(r, 500));
 
     set({ connectionState: "scanning" });
 
@@ -103,10 +108,7 @@ export const useBluetoothStore = create<BluetoothStore>((set, get) => ({
             SERVICE_UUID,
             CHAR_SENSOR,
             (err: BleError | null, char: any) => {
-              if (err) {
-                console.error("[BLE] Sensor Fehler:", err.message);
-                return;
-              }
+              if (err) return; // Verbindungsfehler still ignorieren
               if (!char?.value) return;
               try {
                 const json = atob(char.value);
