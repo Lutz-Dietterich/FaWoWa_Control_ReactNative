@@ -10,6 +10,7 @@ import styles from "./style";
 export default function PresetsSection() {
   const presets = usePresetsStore((s) => s.presets);
 
+  const [editMode, setEditMode] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingPreset, setEditingPreset] = useState<Preset | null>(null);
 
@@ -26,7 +27,7 @@ export default function PresetsSection() {
   const closeModal = () => setModalOpen(false);
 
   return (
-    <View style={styles.section}>
+    <View style={styles.card}>
       <View style={styles.header}>
         <Text style={styles.title}>Presets</Text>
         <IconButton name="add" onPress={openNew} size={26} color={colours.text.accent} />
@@ -37,8 +38,24 @@ export default function PresetsSection() {
       ) : (
         <View style={styles.grid}>
           {presets.map((preset) => (
-            <PresetCard key={preset.id} preset={preset} onEdit={() => openEdit(preset)} />
+            <PresetCard
+              key={preset.id}
+              preset={preset}
+              editMode={editMode}
+              onEdit={() => openEdit(preset)}
+            />
           ))}
+        </View>
+      )}
+
+      {presets.length > 0 && (
+        <View style={styles.footer}>
+          <IconButton
+            name={editMode ? "edit-off" : "edit"}
+            onPress={() => setEditMode((v) => !v)}
+            size={20}
+            color={editMode ? colours.text.accent : "#808080"}
+          />
         </View>
       )}
 

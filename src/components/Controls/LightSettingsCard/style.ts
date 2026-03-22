@@ -42,66 +42,6 @@ const styles = StyleSheet.create({
     color: colours.text.primary,
     marginBottom: 12,
   },
-  colorPreview: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    marginBottom: 12,
-  },
-  colorCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
-  },
-  colorLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: colours.text.primary,
-    fontFamily: "monospace",
-  },
-  quickColors: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-  },
-  colorButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: "rgba(255,255,255,0.2)",
-  },
-  colorButtonActive: {
-    borderWidth: 3,
-    borderColor: colours.text.primary,
-  },
-  brightnessButtons: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  brightnessButton: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.3)",
-    alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.05)",
-  },
-  brightnessButtonActive: {
-    backgroundColor: "rgba(255,255,255,0.2)",
-    borderColor: colours.text.primary,
-  },
-  brightnessButtonText: {
-    color: colours.text.secondary,
-    fontWeight: "500",
-    fontSize: 13,
-  },
-  brightnessButtonTextActive: {
-    color: colours.text.primary,
-  },
 });
 
 export default styles;

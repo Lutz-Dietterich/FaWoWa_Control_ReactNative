@@ -2,8 +2,11 @@ import { StyleSheet } from "react-native";
 import colours from "../../../theme/colours";
 
 const styles = StyleSheet.create({
-  section: {
-    marginBottom: 20,
+  card: {
+    padding: 16,
+    borderRadius: 8,
+    backgroundColor: colours.background.card,
+    marginBottom: 12,
   },
   header: {
     flexDirection: "row",
@@ -12,7 +15,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   title: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "600",
     color: colours.text.primary,
   },
@@ -24,7 +27,11 @@ const styles = StyleSheet.create({
   empty: {
     fontSize: 13,
     color: colours.text.secondary,
-    paddingVertical: 8,
+  },
+  footer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginTop: 12,
   },
 });
 

@@ -26,6 +26,9 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 8,
   },
+  colorButtonWrapper: {
+    position: "relative",
+  },
   colorButton: {
     width: 36,
     height: 36,
@@ -36,6 +39,34 @@ const styles = StyleSheet.create({
   colorButtonActive: {
     borderWidth: 3,
     borderColor: colours.text.accent,
+  },
+  deleteButton: {
+    position: "absolute",
+    top: -5,
+    right: -5,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: "#FF4444",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  addButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: colours.text.accent,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  footer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginTop: 8,
+  },
+  editButton: {
+    padding: 4,
   },
 });
 
