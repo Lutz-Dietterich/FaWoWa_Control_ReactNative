@@ -5,9 +5,8 @@ import {
   DEVICE_NAME,
   SERVICE_UUID,
   CHAR_SENSOR,
-  CHAR_TARGET_TEMP,
-  CHAR_TARGET_HUMIDITY,
-  CHAR_FAN_STATUS,
+  CHAR_FAN1_SETTINGS,
+  CHAR_FAN1_STATUS,
   CHAR_LIGHT_POWER,
   CHAR_LIGHT_COLOR,
   CHAR_LIGHT_BRIGHTNESS,
@@ -20,9 +19,8 @@ export type ConnectionState = "disconnected" | "scanning" | "connecting" | "conn
 // BLE Charakteristiken — zentral für andere Stores
 export const BLE_CHARACTERISTICS = {
   SENSOR: CHAR_SENSOR,
-  TARGET_TEMP: CHAR_TARGET_TEMP,
-  TARGET_HUMIDITY: CHAR_TARGET_HUMIDITY,
-  FAN_STATUS: CHAR_FAN_STATUS,
+  FAN1_SETTINGS: CHAR_FAN1_SETTINGS,
+  FAN1_STATUS: CHAR_FAN1_STATUS,
   LIGHT_POWER: CHAR_LIGHT_POWER,
   LIGHT_COLOR: CHAR_LIGHT_COLOR,
   LIGHT_BRIGHTNESS: CHAR_LIGHT_BRIGHTNESS,
@@ -102,6 +100,16 @@ export const useBluetoothStore = create<BluetoothStore>((set, get) => ({
           await new Promise((resolve) => setTimeout(resolve, 300));
 
           set({ device: connected, connectionState: "connected", isConnected: true });
+
+          // Fan1 Einstellungen vom ESP lesen
+          try {
+            const char = await connected.readCharacteristicForService(SERVICE_UUID, CHAR_FAN1_SETTINGS);
+            if (char?.value) {
+              useFanStore.getState().loadFan1Settings(atob(char.value));
+            }
+          } catch (e) {
+            console.warn("[BLE] Fan1Settings lesen fehlgeschlagen:", e);
+          }
 
           // Sensor-Daten empfangen
           const subscription = connected.monitorCharacteristicForService(

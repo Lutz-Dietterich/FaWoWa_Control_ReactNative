@@ -11,9 +11,9 @@ export default function SettingsCard() {
   const [mode, setMode] = useState<"temp" | "hum">("temp");
 
   const targetTemp = useFanStore((s) => s.targetTemp);
-  const targetHumidity = useFanStore((s) => s.targetHumidity);
+  const targetHumidity = useFanStore((s) => s.targetHum);
   const setTargetTemp = useFanStore((s) => s.setTargetTemp);
-  const setTargetHumidity = useFanStore((s) => s.setTargetHumidity);
+  const setTargetHumidity = useFanStore((s) => s.setTargetHum);
 
   const isTemp = mode === "temp";
   const isHum = mode === "hum";
