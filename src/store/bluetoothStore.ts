@@ -101,6 +101,26 @@ export const useBluetoothStore = create<BluetoothStore>((set, get) => ({
 
           set({ device: connected, connectionState: "connected", isConnected: true });
 
+          // Fan1 Status live monitoren
+          connected.monitorCharacteristicForService(
+            SERVICE_UUID,
+            CHAR_FAN1_STATUS,
+            (err: BleError | null, char: any) => {
+              if (err || !char?.value) return;
+              try {
+                const json = atob(char.value);
+                const parsed = JSON.parse(json);
+                useFanStore.getState().setFan1Status(
+                  parsed.speed ?? 0,
+                  parsed.tempActive ?? false,
+                  parsed.humActive ?? false
+                );
+              } catch (e) {
+                console.error("[BLE] Fan1Status Parse-Fehler:", e);
+              }
+            }
+          );
+
           // Fan1 Einstellungen vom ESP lesen
           try {
             const char = await connected.readCharacteristicForService(SERVICE_UUID, CHAR_FAN1_SETTINGS);

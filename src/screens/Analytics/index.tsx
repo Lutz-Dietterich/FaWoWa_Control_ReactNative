@@ -1,14 +1,17 @@
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import ScreenLayout from "../../components/Layout/ScreenLayout";
+import FanStatusCard from "../../components/Dashboard/FanStatusCard";
+import FanFineSettingsCard from "../../components/Dashboard/FanFineSettingsCard";
 import { useBluetoothStore } from "../../store/bluetoothStore";
 import styles from "./style";
 
 export default function AnalyticsScreen() {
   const connect = useBluetoothStore((s) => s.connect);
   return (
-    <ScreenLayout scrollable={false} onRefresh={connect}>
+    <ScreenLayout scrollable={true} onRefresh={connect}>
       <View style={styles.container}>
-        <Text style={styles.title}>Auswertung</Text>
+        <FanStatusCard />
+        <FanFineSettingsCard />
       </View>
     </ScreenLayout>
   );
