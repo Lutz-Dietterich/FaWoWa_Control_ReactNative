@@ -13,6 +13,7 @@ import {
   CHAR_HISTORY_CTRL,
   CHAR_HISTORY_DATA,
 } from "../constants/ble";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useSensorStore } from "./sensorStore";
 import { useFanStore } from "./fanStore";
 import { useHistoryStore, HistoryEntry } from "./historyStore";
@@ -62,195 +63,223 @@ interface BluetoothStore {
   sendCommand: (characteristic: string, data: string) => Promise<void>;
 }
 
-export const useBluetoothStore = create<BluetoothStore>((set, get) => ({
-  connectionState: "disconnected",
-  isConnected: false,
-  device: null,
-  subscription: null,
+export const useBluetoothStore = create<BluetoothStore>((set, get) => {
 
-  connect: async () => {
-    const state = get().connectionState;
-    if (state === "scanning" || state === "connecting") return;
+  // ── Post-Connect Setup ───────────────────────────────────────────────────────
+  // Wird nach erfolgreicher Verbindung aufgerufen (egal ob Direktverbindung oder Scan)
 
-    const hasPermission = await requestAndroidPermissions();
-    if (!hasPermission) {
-      console.warn("[BLE] Berechtigungen fehlen");
-      return;
+  async function setupDevice(connected: Device) {
+    try {
+      await connected.requestMTU(128);
+      await connected.discoverAllServicesAndCharacteristics();
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      await AsyncStorage.setItem("ble_device_id", connected.id).catch(() => {});
+      set({ device: connected, connectionState: "connected", isConnected: true });
+
+      // Fan1 Status live monitoren
+      connected.monitorCharacteristicForService(
+        SERVICE_UUID,
+        CHAR_FAN1_STATUS,
+        (err: BleError | null, char: any) => {
+          if (err || !char?.value) return;
+          try {
+            const json = atob(char.value);
+            const parsed = JSON.parse(json);
+            useFanStore.getState().setFan1Status(
+              parsed.speed ?? 0,
+              parsed.tempActive ?? false,
+              parsed.humActive ?? false
+            );
+          } catch (e) {
+            console.error("[BLE] Fan1Status Parse-Fehler:", e);
+          }
+        }
+      );
+
+      // Fan1 Einstellungen vom ESP lesen
+      try {
+        const char = await connected.readCharacteristicForService(SERVICE_UUID, CHAR_FAN1_SETTINGS);
+        if (char?.value) {
+          useFanStore.getState().loadFan1Settings(atob(char.value));
+        }
+      } catch (e) {
+        console.warn("[BLE] Fan1Settings lesen fehlgeschlagen:", e);
+      }
+
+      // History: Subscription bleibt die gesamte Session aktiv
+      const historyChunks: HistoryEntry[] = [];
+
+      _historySubscription = connected.monitorCharacteristicForService(
+        SERVICE_UUID,
+        CHAR_HISTORY_DATA,
+        async (err: BleError | null, char: any) => {
+          if (err || !char?.value) return;
+          try {
+            const json = atob(char.value);
+            const parsed = JSON.parse(json);
+
+            if (parsed.done === true) {
+              // Letzter Bulk-Chunk → merge + ACK
+              const entries: HistoryEntry[] = parsed.d ?? [];
+              historyChunks.push(...entries);
+              await useHistoryStore.getState().mergeEntries(historyChunks);
+              historyChunks.length = 0;
+              const b64ack = btoa(JSON.stringify({ cmd: "ack" }));
+              await connected
+                .writeCharacteristicWithResponseForService(SERVICE_UUID, CHAR_HISTORY_CTRL, b64ack)
+                .catch(() => {});
+            } else if (Array.isArray(parsed)) {
+              // Zwischen-Chunk des Bulk-Transfers
+              historyChunks.push(...(parsed as HistoryEntry[]));
+            } else if (parsed.ts !== undefined) {
+              // Echtzeit-Push: einzelner Eintrag
+              if (parsed.ts < 1_000_000_000) {
+                parsed.ts = Math.floor(Date.now() / 1000);
+              }
+              await useHistoryStore.getState().mergeEntries([parsed as HistoryEntry]);
+            }
+          } catch (e) {
+            console.warn("[BLE] History Parse-Fehler:", e);
+          }
+        }
+      );
+
+      // Bulk-Transfer starten
+      try {
+        const appTs = Math.floor(Date.now() / 1000);
+        const b64 = btoa(JSON.stringify({ cmd: "send", ts: appTs }));
+        await connected.writeCharacteristicWithResponseForService(SERVICE_UUID, CHAR_HISTORY_CTRL, b64);
+      } catch (e) {
+        console.warn("[BLE] History start fehlgeschlagen:", e);
+      }
+
+      // Sensor-Daten empfangen
+      const subscription = connected.monitorCharacteristicForService(
+        SERVICE_UUID,
+        CHAR_SENSOR,
+        (err: BleError | null, char: any) => {
+          if (err) return;
+          if (!char?.value) return;
+          try {
+            const json = atob(char.value);
+            const parsed = JSON.parse(json);
+            useSensorStore.getState().setSensorData(parsed);
+          } catch (e) {
+            console.error("[BLE] Sensor Parse-Fehler:", e);
+          }
+        }
+      );
+
+      set({ subscription });
+
+      connected.onDisconnected(() => {
+        get().subscription?.remove();
+        _historySubscription?.remove();
+        _historySubscription = null;
+        set({
+          subscription: null,
+          device: null,
+          connectionState: "disconnected",
+          isConnected: false,
+        });
+        useSensorStore.getState().setSensorData({ temperature: 0, humidity: 0, co2: 0 });
+      });
+    } catch (e) {
+      console.error("[BLE] Verbindungsfehler:", e);
+      set({ connectionState: "disconnected" });
     }
+  }
 
-    // Vorherige Verbindung/Scan sauber beenden
-    bleManager.stopDeviceScan();
-    get().subscription?.remove();
-    await get().device?.cancelConnection()?.catch(() => {});
-    set({ subscription: null, device: null, isConnected: false });
+  return {
+    connectionState: "disconnected",
+    isConnected: false,
+    device: null,
+    subscription: null,
 
-    await new Promise((r) => setTimeout(r, 500));
+    connect: async () => {
+      const state = get().connectionState;
+      if (state === "scanning" || state === "connecting") return;
 
-    set({ connectionState: "scanning" });
-
-    bleManager.startDeviceScan(null, null, async (error: BleError | null, device: Device | null) => {
-      if (error) {
-        console.error("[BLE] Scan-Fehler:", error.message);
-        set({ connectionState: "disconnected" });
+      const hasPermission = await requestAndroidPermissions();
+      if (!hasPermission) {
+        console.warn("[BLE] Berechtigungen fehlen");
         return;
       }
 
-      if (device?.name === DEVICE_NAME) {
-        bleManager.stopDeviceScan();
+      // Vorherige Verbindung/Scan sauber beenden
+      bleManager.stopDeviceScan();
+      get().subscription?.remove();
+      await get().device?.cancelConnection()?.catch(() => {});
+      set({ subscription: null, device: null, isConnected: false });
+
+      await new Promise((r) => setTimeout(r, 500));
+
+      // ── Direktverbindung über gespeicherte Geräte-ID ─────────────────────────
+      const storedId = await AsyncStorage.getItem("ble_device_id").catch(() => null);
+      if (storedId) {
         set({ connectionState: "connecting" });
-
         try {
-          const connected = await device.connect();
-          await connected.requestMTU(128);
-          await connected.discoverAllServicesAndCharacteristics();
-          await new Promise((resolve) => setTimeout(resolve, 300));
-
-          set({ device: connected, connectionState: "connected", isConnected: true });
-
-          // Fan1 Status live monitoren
-          connected.monitorCharacteristicForService(
-            SERVICE_UUID,
-            CHAR_FAN1_STATUS,
-            (err: BleError | null, char: any) => {
-              if (err || !char?.value) return;
-              try {
-                const json = atob(char.value);
-                const parsed = JSON.parse(json);
-                useFanStore.getState().setFan1Status(
-                  parsed.speed ?? 0,
-                  parsed.tempActive ?? false,
-                  parsed.humActive ?? false
-                );
-              } catch (e) {
-                console.error("[BLE] Fan1Status Parse-Fehler:", e);
-              }
-            }
-          );
-
-          // Fan1 Einstellungen vom ESP lesen
-          try {
-            const char = await connected.readCharacteristicForService(SERVICE_UUID, CHAR_FAN1_SETTINGS);
-            if (char?.value) {
-              useFanStore.getState().loadFan1Settings(atob(char.value));
-            }
-          } catch (e) {
-            console.warn("[BLE] Fan1Settings lesen fehlgeschlagen:", e);
-          }
-
-          // History: Subscription bleibt die gesamte Session aktiv
-          // — Bulk-Transfer beim Verbinden (Buffer aus Trennungszeit)
-          // — Echtzeit-Push danach (einzelne Einträge alle 60s)
-          const historyChunks: HistoryEntry[] = [];
-
-          _historySubscription = connected.monitorCharacteristicForService(
-            SERVICE_UUID,
-            CHAR_HISTORY_DATA,
-            async (err: BleError | null, char: any) => {
-              if (err || !char?.value) return;
-              try {
-                const json = atob(char.value);
-                const parsed = JSON.parse(json);
-
-                if (parsed.done === true) {
-                  // Letzter Bulk-Chunk → merge + ACK
-                  const entries: HistoryEntry[] = parsed.d ?? [];
-                  historyChunks.push(...entries);
-                  await useHistoryStore.getState().mergeEntries(historyChunks);
-                  historyChunks.length = 0; // Buffer leeren
-                  const b64ack = btoa(JSON.stringify({ cmd: "ack" }));
-                  await connected
-                    .writeCharacteristicWithResponseForService(SERVICE_UUID, CHAR_HISTORY_CTRL, b64ack)
-                    .catch(() => {});
-                } else if (Array.isArray(parsed)) {
-                  // Zwischen-Chunk des Bulk-Transfers
-                  historyChunks.push(...(parsed as HistoryEntry[]));
-                } else if (parsed.ts !== undefined) {
-                  // Echtzeit-Push: einzelner Eintrag
-                  // ts < 1e9 → millis-relativer Fallback vom ESP → auf jetzt normalisieren
-                  if (parsed.ts < 1_000_000_000) {
-                    parsed.ts = Math.floor(Date.now() / 1000);
-                  }
-                  await useHistoryStore.getState().mergeEntries([parsed as HistoryEntry]);
-                }
-              } catch (e) {
-                console.warn("[BLE] History Parse-Fehler:", e);
-              }
-            }
-          );
-
-          // Bulk-Transfer starten
-          try {
-            const appTs = Math.floor(Date.now() / 1000);
-            const b64 = btoa(JSON.stringify({ cmd: "send", ts: appTs }));
-            await connected.writeCharacteristicWithResponseForService(SERVICE_UUID, CHAR_HISTORY_CTRL, b64);
-          } catch (e) {
-            console.warn("[BLE] History start fehlgeschlagen:", e);
-          }
-
-          // Sensor-Daten empfangen
-          const subscription = connected.monitorCharacteristicForService(
-            SERVICE_UUID,
-            CHAR_SENSOR,
-            (err: BleError | null, char: any) => {
-              if (err) return; // Verbindungsfehler still ignorieren
-              if (!char?.value) return;
-              try {
-                const json = atob(char.value);
-                const parsed = JSON.parse(json);
-                useSensorStore.getState().setSensorData(parsed);
-              } catch (e) {
-                console.error("[BLE] Sensor Parse-Fehler:", e);
-              }
-            }
-          );
-
-          set({ subscription });
-
-          connected.onDisconnected(() => {
-            get().subscription?.remove();
-            _historySubscription?.remove();
-            _historySubscription = null;
-            set({
-              subscription: null,
-              device: null,
-              connectionState: "disconnected",
-              isConnected: false,
-            });
-            useSensorStore.getState().setSensorData({ temperature: 0, humidity: 0, co2: 0 });
-          });
+          console.log("[BLE] Direktverbindung zu", storedId);
+          const device = await bleManager.connectToDevice(storedId);
+          await setupDevice(device);
+          return;
         } catch (e) {
-          console.error("[BLE] Verbindungsfehler:", e);
+          console.warn("[BLE] Direktverbindung fehlgeschlagen, starte Scan:", e);
           set({ connectionState: "disconnected" });
         }
       }
-    });
-  },
 
-  disconnect: async () => {
-    bleManager.stopDeviceScan();
-    get().subscription?.remove();
-    _historySubscription?.remove();
-    _historySubscription = null;
-    await get().device?.cancelConnection();
-    set({
-      subscription: null,
-      device: null,
-      connectionState: "disconnected",
-      isConnected: false,
-    });
-  },
+      // ── Fallback: normaler Scan ───────────────────────────────────────────────
+      set({ connectionState: "scanning" });
 
-  sendCommand: async (characteristic: string, data: string) => {
-    const device = get().device;
-    if (!device) {
-      console.warn("[BLE] Nicht verbunden — sendCommand ignoriert");
-      return;
-    }
-    try {
-      const b64 = btoa(data);
-      await device.writeCharacteristicWithResponseForService(SERVICE_UUID, characteristic, b64);
-    } catch (e) {
-      console.error("[BLE] sendCommand Fehler:", e);
-    }
-  },
-}));
+      bleManager.startDeviceScan(null, null, async (error: BleError | null, device: Device | null) => {
+        if (error) {
+          console.error("[BLE] Scan-Fehler:", error.message);
+          set({ connectionState: "disconnected" });
+          return;
+        }
+
+        if (device?.name === DEVICE_NAME) {
+          bleManager.stopDeviceScan();
+          set({ connectionState: "connecting" });
+          try {
+            const connected = await device.connect();
+            await setupDevice(connected);
+          } catch (e) {
+            console.error("[BLE] Verbindungsfehler:", e);
+            set({ connectionState: "disconnected" });
+          }
+        }
+      });
+    },
+
+    disconnect: async () => {
+      bleManager.stopDeviceScan();
+      get().subscription?.remove();
+      _historySubscription?.remove();
+      _historySubscription = null;
+      await get().device?.cancelConnection();
+      set({
+        subscription: null,
+        device: null,
+        connectionState: "disconnected",
+        isConnected: false,
+      });
+    },
+
+    sendCommand: async (characteristic: string, data: string) => {
+      const device = get().device;
+      if (!device) {
+        console.warn("[BLE] Nicht verbunden — sendCommand ignoriert");
+        return;
+      }
+      try {
+        const b64 = btoa(data);
+        await device.writeCharacteristicWithResponseForService(SERVICE_UUID, characteristic, b64);
+      } catch (e) {
+        console.error("[BLE] sendCommand Fehler:", e);
+      }
+    },
+  };
+});
