@@ -10,9 +10,12 @@ import {
   CHAR_LIGHT_POWER,
   CHAR_LIGHT_COLOR,
   CHAR_LIGHT_BRIGHTNESS,
+  CHAR_HISTORY_CTRL,
+  CHAR_HISTORY_DATA,
 } from "../constants/ble";
 import { useSensorStore } from "./sensorStore";
 import { useFanStore } from "./fanStore";
+import { useHistoryStore, HistoryEntry } from "./historyStore";
 
 export type ConnectionState = "disconnected" | "scanning" | "connecting" | "connected";
 
@@ -28,6 +31,9 @@ export const BLE_CHARACTERISTICS = {
 
 // Singleton — wird einmal erstellt und wiederverwendet
 const bleManager = new BleManager();
+
+// History-Subscription außerhalb des Stores damit disconnect() darauf zugreifen kann
+let _historySubscription: any = null;
 
 async function requestAndroidPermissions(): Promise<boolean> {
   if (Platform.OS !== "android") return true;
@@ -131,6 +137,56 @@ export const useBluetoothStore = create<BluetoothStore>((set, get) => ({
             console.warn("[BLE] Fan1Settings lesen fehlgeschlagen:", e);
           }
 
+          // History: Subscription bleibt die gesamte Session aktiv
+          // — Bulk-Transfer beim Verbinden (Buffer aus Trennungszeit)
+          // — Echtzeit-Push danach (einzelne Einträge alle 60s)
+          const historyChunks: HistoryEntry[] = [];
+
+          _historySubscription = connected.monitorCharacteristicForService(
+            SERVICE_UUID,
+            CHAR_HISTORY_DATA,
+            async (err: BleError | null, char: any) => {
+              if (err || !char?.value) return;
+              try {
+                const json = atob(char.value);
+                const parsed = JSON.parse(json);
+
+                if (parsed.done === true) {
+                  // Letzter Bulk-Chunk → merge + ACK
+                  const entries: HistoryEntry[] = parsed.d ?? [];
+                  historyChunks.push(...entries);
+                  await useHistoryStore.getState().mergeEntries(historyChunks);
+                  historyChunks.length = 0; // Buffer leeren
+                  const b64ack = btoa(JSON.stringify({ cmd: "ack" }));
+                  await connected
+                    .writeCharacteristicWithResponseForService(SERVICE_UUID, CHAR_HISTORY_CTRL, b64ack)
+                    .catch(() => {});
+                } else if (Array.isArray(parsed)) {
+                  // Zwischen-Chunk des Bulk-Transfers
+                  historyChunks.push(...(parsed as HistoryEntry[]));
+                } else if (parsed.ts !== undefined) {
+                  // Echtzeit-Push: einzelner Eintrag
+                  // ts < 1e9 → millis-relativer Fallback vom ESP → auf jetzt normalisieren
+                  if (parsed.ts < 1_000_000_000) {
+                    parsed.ts = Math.floor(Date.now() / 1000);
+                  }
+                  await useHistoryStore.getState().mergeEntries([parsed as HistoryEntry]);
+                }
+              } catch (e) {
+                console.warn("[BLE] History Parse-Fehler:", e);
+              }
+            }
+          );
+
+          // Bulk-Transfer starten
+          try {
+            const appTs = Math.floor(Date.now() / 1000);
+            const b64 = btoa(JSON.stringify({ cmd: "send", ts: appTs }));
+            await connected.writeCharacteristicWithResponseForService(SERVICE_UUID, CHAR_HISTORY_CTRL, b64);
+          } catch (e) {
+            console.warn("[BLE] History start fehlgeschlagen:", e);
+          }
+
           // Sensor-Daten empfangen
           const subscription = connected.monitorCharacteristicForService(
             SERVICE_UUID,
@@ -152,6 +208,8 @@ export const useBluetoothStore = create<BluetoothStore>((set, get) => ({
 
           connected.onDisconnected(() => {
             get().subscription?.remove();
+            _historySubscription?.remove();
+            _historySubscription = null;
             set({
               subscription: null,
               device: null,
@@ -171,6 +229,8 @@ export const useBluetoothStore = create<BluetoothStore>((set, get) => ({
   disconnect: async () => {
     bleManager.stopDeviceScan();
     get().subscription?.remove();
+    _historySubscription?.remove();
+    _historySubscription = null;
     await get().device?.cancelConnection();
     set({
       subscription: null,

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { useBluetoothStore, BLE_CHARACTERISTICS } from "./bluetoothStore";
+import { CHAR_FAN1_SETTINGS } from "../constants/ble";
 
 interface Fan1Settings {
   targetTemp: number;
@@ -35,7 +35,9 @@ const DEFAULT_SETTINGS: Fan1Settings = {
 
 function sendFan1Settings(settings: Fan1Settings) {
   const data = JSON.stringify(settings);
-  useBluetoothStore.getState().sendCommand(BLE_CHARACTERISTICS.FAN1_SETTINGS, data);
+  // lazy require bricht den Zirkel-Import: bluetoothStore → fanStore → bluetoothStore
+  const { useBluetoothStore } = require("./bluetoothStore");
+  useBluetoothStore.getState().sendCommand(CHAR_FAN1_SETTINGS, data);
 }
 
 export const useFanStore = create<FanStore>((set, get) => ({
