@@ -15,3 +15,4 @@ export const CHAR_LIGHT_BRIGHTNESS = "fa000008-0000-1000-8000-00805f9b34fb";
 export const CHAR_FAN2_STATUS      = "fa000009-0000-1000-8000-00805f9b34fb";  // Read | Notify
 export const CHAR_HISTORY_CTRL     = "fa00000a-0000-1000-8000-00805f9b34fb";  // Write
 export const CHAR_HISTORY_DATA     = "fa00000b-0000-1000-8000-00805f9b34fb";  // Notify
+export const CHAR_SENSOR_CTRL      = "fa00000c-0000-1000-8000-00805f9b34fb";  // Write

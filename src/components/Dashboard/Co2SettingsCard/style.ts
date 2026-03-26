@@ -63,6 +63,17 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.08)",
     marginVertical: 14,
   },
+  calibrateBtn: {
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+  calibrateBtnText: {
+    fontSize: 14,
+    color: colours.text.primary,
+    fontWeight: "500",
+  },
 });
 
 export default styles;

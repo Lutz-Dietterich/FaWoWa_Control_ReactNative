@@ -1,5 +1,7 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import { useFanStore } from "../../../store/fanStore";
+import { useBluetoothStore } from "../../../store/bluetoothStore";
+import { CHAR_SENSOR_CTRL, SERVICE_UUID } from "../../../constants/ble";
 import styles from "./style";
 
 interface OffsetRowProps {
@@ -37,9 +39,14 @@ function OffsetRow({ label, value, onChange, min, max, step, unit }: OffsetRowPr
 
 export default function Co2SettingsCard() {
   const store = useFanStore();
+  const sendCommand = useBluetoothStore((s) => s.sendCommand);
 
   const update = (key: string) => (value: number) =>
     store.saveAllFan1Settings({ ...store, [key]: value });
+
+  const calibrate = () => {
+    sendCommand(CHAR_SENSOR_CTRL, JSON.stringify({ cmd: "frc" }));
+  };
 
   return (
     <View style={styles.card}>
@@ -82,6 +89,13 @@ export default function Co2SettingsCard() {
         min={15} max={50} step={5}
         unit="%"
       />
+
+      <View style={styles.divider} />
+
+      <Text style={styles.sectionLabel}>Sensor-Kalibrierung</Text>
+      <TouchableOpacity style={styles.calibrateBtn} onPress={calibrate}>
+        <Text style={styles.calibrateBtnText}>Sensor auf 700 ppm kalibrieren</Text>
+      </TouchableOpacity>
     </View>
   );
 }
