@@ -4,6 +4,7 @@ import styles from "./style";
 
 interface SetpointDisplayProps {
   isTemp: boolean;
+  isCo2?: boolean;
   value: number;
 }
 
@@ -15,10 +16,10 @@ function calculateOffset(value: number, max: number): number {
   return DASHARRAY - (value / max) * (DASHARRAY - MIN_OFFSET);
 }
 
-export default function SetpointDisplay({ isTemp, value }: SetpointDisplayProps) {
-  const max = isTemp ? 35 : 100;
-  const unit = isTemp ? "°C" : "%";
-  const gradientStart = isTemp ? "#e31616" : "rgb(91, 222, 70)";
+export default function SetpointDisplay({ isTemp, isCo2, value }: SetpointDisplayProps) {
+  const max = isTemp ? 35 : isCo2 ? 2000 : 100;
+  const unit = isTemp ? "°C" : isCo2 ? " ppm" : "%";
+  const gradientStart = isTemp ? "#e31616" : isCo2 ? "#FFA500" : "rgb(91, 222, 70)";
   const offset = calculateOffset(value, max);
 
   return (

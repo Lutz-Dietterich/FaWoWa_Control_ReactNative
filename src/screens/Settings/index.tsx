@@ -7,7 +7,7 @@ import styles from "./style";
 export default function SettingsScreen() {
   const connect = useBluetoothStore((s) => s.connect);
   return (
-    <ScreenLayout scrollable={false} onRefresh={connect}>
+    <ScreenLayout scrollable={true} onRefresh={connect}>
       <View style={styles.container}>
         <SettingsCard />
       </View>
