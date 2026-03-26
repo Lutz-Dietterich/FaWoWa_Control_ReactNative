@@ -82,6 +82,18 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 
 ---
 
+## Interpretationen
+
+**NIEMALS interpretieren.** Wenn eine Anfrage unklar ist oder mehrere Umsetzungsmöglichkeiten hat → **immer zuerst fragen**, nie selbst entscheiden.
+
+Beispiele wo gefragt werden muss:
+
+- Position eines Elements ("oben rechts" — absolut oder in einer Zeile?)
+- Farbe/Style ("dunkel" — Hintergrund oder Text?)
+- Größe ("anpassen" — größer oder kleiner?)
+
+---
+
 ## Designprinzipien
 
 - **Schritt-für-Schritt**: Keine autonomen Änderungen

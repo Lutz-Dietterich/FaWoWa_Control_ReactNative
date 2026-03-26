@@ -1,4 +1,6 @@
-import { TouchableOpacity, Text } from "react-native";
+import { TouchableOpacity } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import colours from "../../../theme/colours";
 import styles from "./style";
 
 interface Co2ButtonProps {
@@ -9,7 +11,11 @@ interface Co2ButtonProps {
 export default function Co2Button({ co2On, onToggle }: Co2ButtonProps) {
   return (
     <TouchableOpacity onPress={onToggle} activeOpacity={0.7} style={styles.button}>
-      <Text style={[styles.label, co2On && styles.labelOn]}>CO₂</Text>
+      <MaterialCommunityIcons
+        name="molecule-co2"
+        size={48}
+        color={co2On ? colours.text.accent : colours.text.secondary}
+      />
     </TouchableOpacity>
   );
 }

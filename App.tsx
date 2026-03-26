@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import * as NavigationBar from "expo-navigation-bar";
+import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
 import Navigation from "./src/navigation";
 import { useBluetoothStore } from "./src/store/bluetoothStore";
@@ -23,6 +24,7 @@ const App = () => {
 
   return (
     <SafeAreaProvider>
+      <StatusBar style="dark" />
       <Navigation />
     </SafeAreaProvider>
   );

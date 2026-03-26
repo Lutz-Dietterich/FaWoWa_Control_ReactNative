@@ -26,6 +26,8 @@ export default {
         "android.permission.BLUETOOTH",
         "android.permission.BLUETOOTH_ADMIN",
         "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
       ],
       package: IS_DEV
         ? "com.lutz_dietterich.FaWoWaControl.dev"
@@ -34,7 +36,7 @@ export default {
     web: {
       favicon: "./assets/favicon.png",
     },
-    plugins: ["expo-asset", "react-native-ble-plx"],
+    plugins: ["expo-asset", "react-native-ble-plx", "expo-location"],
     extra: {
       eas: {
         projectId: "9c3cc1a7-48d8-4e60-b55f-ec3662e96319",

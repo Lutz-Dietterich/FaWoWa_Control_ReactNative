@@ -54,18 +54,6 @@ export default function Navigation() {
           }}
         />
         <Tab.Screen
-          name="Settings"
-          component={SettingsScreen}
-          options={{
-            tabBarIcon: ({ focused }) =>
-              focused ? (
-                <IconSettingsOn width={ICON_SIZE} height={ICON_SIZE} />
-              ) : (
-                <IconSettings width={ICON_SIZE} height={ICON_SIZE} />
-              ),
-          }}
-        />
-        <Tab.Screen
           name="Lights"
           component={LightsScreen}
           options={{
@@ -81,13 +69,25 @@ export default function Navigation() {
           name="Analytics"
           component={AnalyticsScreen}
           options={{
-            tabBarIcon: () => (
+            tabBarIcon: ({ focused }) => (
               <MaterialIcons
                 name="bar-chart"
-                size={ICON_SIZE}
-                color={colours.text.primary}
+                size={32}
+                color={focused ? colours.text.accent : colours.text.secondary}
               />
             ),
+          }}
+        />
+        <Tab.Screen
+          name="Settings"
+          component={SettingsScreen}
+          options={{
+            tabBarIcon: ({ focused }) =>
+              focused ? (
+                <IconSettingsOn width={ICON_SIZE} height={ICON_SIZE} />
+              ) : (
+                <IconSettings width={ICON_SIZE} height={ICON_SIZE} />
+              ),
           }}
         />
       </Tab.Navigator>

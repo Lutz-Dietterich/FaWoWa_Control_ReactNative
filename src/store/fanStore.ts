@@ -20,6 +20,7 @@ interface FanStore extends Fan1Settings {
   fan1HumActive: boolean;
   fan1Co2Active: boolean;
   fan2Speed: number;
+  autoMode: boolean;
 
   setFanSpeeds: (fan1: number, fan2: number) => void;
   setFan1Status: (speed: number, tempActive: boolean, humActive: boolean, co2Active: boolean) => void;
@@ -55,6 +56,7 @@ export const useFanStore = create<FanStore>((set, get) => ({
   fan1HumActive: false,
   fan1Co2Active: false,
   fan2Speed: 0,
+  autoMode: true,
   ...DEFAULT_SETTINGS,
 
   setFanSpeeds: (fan1, fan2) => set({ fan1Speed: fan1, fan2Speed: fan2 }),

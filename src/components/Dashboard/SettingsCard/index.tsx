@@ -5,6 +5,7 @@ import StepButton from "../../Buttons/StepButton";
 import TempButton from "../../Buttons/TempButton";
 import HumButton from "../../Buttons/HumButton";
 import Co2Button from "../../Buttons/Co2Button";
+import { FontAwesome } from "@expo/vector-icons";
 import { useFanStore } from "../../../store/fanStore";
 import { useBluetoothStore } from "../../../store/bluetoothStore";
 import { CHAR_SENSOR_CTRL } from "../../../constants/ble";
@@ -37,6 +38,7 @@ function OffsetRow({
 export default function SettingsCard() {
   const [mode, setMode] = useState<Mode>("temp");
   const [modalVisible, setModalVisible] = useState(false);
+  const [manualSpeed, setManualSpeed] = useState(0);
 
   const store = useFanStore();
   const sendCommand = useBluetoothStore((s) => s.sendCommand);
@@ -67,6 +69,9 @@ export default function SettingsCard() {
       <Text style={styles.title}>
         {isTemp ? "Temperatur" : isHum ? "Luftfeuchigkeit" : "CO₂"}
       </Text>
+      <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.gearBtn}>
+        <FontAwesome name="gear" size={24} color="#39FF14" />
+      </TouchableOpacity>
 
       <SetpointDisplay isTemp={isTemp} isCo2={isCo2} value={currentValue} />
 
@@ -81,9 +86,21 @@ export default function SettingsCard() {
           <HumButton humOn={isHum} onToggle={() => setMode("hum")} />
           <Co2Button co2On={isCo2} onToggle={() => setMode("co2")} />
         </View>
-        <TouchableOpacity onPress={() => setModalVisible(true)}>
-          <Text style={styles.fineSettingsBtn}>Feineinstellungen</Text>
-        </TouchableOpacity>
+        <View style={styles.manualSpeedControl}>
+          <TouchableOpacity
+            style={styles.manualSpeedBtn}
+            onPress={() => setManualSpeed((v) => Math.max(0, v - 5))}
+          >
+            <Text style={styles.manualSpeedBtnText}>−</Text>
+          </TouchableOpacity>
+          <Text style={styles.manualSpeedValue}>{manualSpeed}%</Text>
+          <TouchableOpacity
+            style={styles.manualSpeedBtn}
+            onPress={() => setManualSpeed((v) => Math.min(100, v + 5))}
+          >
+            <Text style={styles.manualSpeedBtnText}>+</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <Modal visible={modalVisible} transparent animationType="fade">
