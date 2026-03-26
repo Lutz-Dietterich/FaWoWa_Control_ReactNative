@@ -8,16 +8,21 @@ interface Fan1Settings {
   targetHum: number;
   humBelowOffset: number;
   humAboveOffset: number;
+  targetCo2: number;
+  co2BelowOffset: number;
+  co2AboveOffset: number;
+  minSpeed: number;
 }
 
 interface FanStore extends Fan1Settings {
   fan1Speed: number;
   fan1TempActive: boolean;
   fan1HumActive: boolean;
+  fan1Co2Active: boolean;
   fan2Speed: number;
 
   setFanSpeeds: (fan1: number, fan2: number) => void;
-  setFan1Status: (speed: number, tempActive: boolean, humActive: boolean) => void;
+  setFan1Status: (speed: number, tempActive: boolean, humActive: boolean, co2Active: boolean) => void;
   setTargetTemp: (value: number) => void;
   setTargetHum: (value: number) => void;
   saveAllFan1Settings: (settings: Fan1Settings) => void;
@@ -31,6 +36,10 @@ const DEFAULT_SETTINGS: Fan1Settings = {
   targetHum: 60,
   humBelowOffset: 5,
   humAboveOffset: 5,
+  targetCo2: 1000,
+  co2BelowOffset: 200,
+  co2AboveOffset: 500,
+  minSpeed: 20,
 };
 
 function sendFan1Settings(settings: Fan1Settings) {
@@ -44,13 +53,14 @@ export const useFanStore = create<FanStore>((set, get) => ({
   fan1Speed: 0,
   fan1TempActive: false,
   fan1HumActive: false,
+  fan1Co2Active: false,
   fan2Speed: 0,
   ...DEFAULT_SETTINGS,
 
   setFanSpeeds: (fan1, fan2) => set({ fan1Speed: fan1, fan2Speed: fan2 }),
 
-  setFan1Status: (speed, tempActive, humActive) =>
-    set({ fan1Speed: speed, fan1TempActive: tempActive, fan1HumActive: humActive }),
+  setFan1Status: (speed, tempActive, humActive, co2Active) =>
+    set({ fan1Speed: speed, fan1TempActive: tempActive, fan1HumActive: humActive, fan1Co2Active: co2Active }),
 
   setTargetTemp: (value) => {
     set({ targetTemp: value });
@@ -77,6 +87,10 @@ export const useFanStore = create<FanStore>((set, get) => ({
         targetHum:       parsed.targetHum       ?? DEFAULT_SETTINGS.targetHum,
         humBelowOffset:  parsed.humBelowOffset  ?? DEFAULT_SETTINGS.humBelowOffset,
         humAboveOffset:  parsed.humAboveOffset  ?? DEFAULT_SETTINGS.humAboveOffset,
+        targetCo2:       parsed.targetCo2       ?? DEFAULT_SETTINGS.targetCo2,
+        co2BelowOffset:  parsed.co2BelowOffset  ?? DEFAULT_SETTINGS.co2BelowOffset,
+        co2AboveOffset:  parsed.co2AboveOffset  ?? DEFAULT_SETTINGS.co2AboveOffset,
+        minSpeed:        parsed.minSpeed        ?? DEFAULT_SETTINGS.minSpeed,
       });
     } catch (e) {
       console.error("[FanStore] loadFan1Settings Parse-Fehler:", e);

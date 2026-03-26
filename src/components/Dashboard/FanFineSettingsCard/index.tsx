@@ -45,14 +45,14 @@ export default function FanFineSettingsCard() {
       <Text style={styles.title}>Lüfter 1 — Feineinstellungen</Text>
 
       <Text style={styles.sectionLabel}>Temperatur</Text>
-      <OffsetRow label="Startet" value={store.tempBelowOffset} onChange={update("tempBelowOffset")} min={1} max={10} unit="°C vor Sollwert" />
-      <OffsetRow label="100% bei" value={store.tempAboveOffset} onChange={update("tempAboveOffset")} min={1} max={10} unit="°C über Sollwert" />
+      <OffsetRow label="Startet" value={store.tempBelowOffset} onChange={update("tempBelowOffset")} min={0} max={10} unit="°C vor Sollwert" />
+      <OffsetRow label="100% bei" value={store.tempAboveOffset} onChange={update("tempAboveOffset")} min={0} max={10} unit="°C über Sollwert" />
 
       <View style={styles.divider} />
 
       <Text style={styles.sectionLabel}>Luftfeuchte</Text>
-      <OffsetRow label="Startet" value={store.humBelowOffset} onChange={update("humBelowOffset")} min={1} max={20} unit="% vor Sollwert" />
-      <OffsetRow label="100% bei" value={store.humAboveOffset} onChange={update("humAboveOffset")} min={1} max={20} unit="% über Sollwert" />
+      <OffsetRow label="Startet" value={store.humBelowOffset} onChange={update("humBelowOffset")} min={0} max={20} unit="% vor Sollwert" />
+      <OffsetRow label="100% bei" value={store.humAboveOffset} onChange={update("humAboveOffset")} min={0} max={20} unit="% über Sollwert" />
     </View>
   );
 }

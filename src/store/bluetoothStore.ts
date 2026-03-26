@@ -89,7 +89,8 @@ export const useBluetoothStore = create<BluetoothStore>((set, get) => {
             useFanStore.getState().setFan1Status(
               parsed.speed ?? 0,
               parsed.tempActive ?? false,
-              parsed.humActive ?? false
+              parsed.humActive ?? false,
+              parsed.co2Active ?? false
             );
           } catch (e) {
             console.error("[BLE] Fan1Status Parse-Fehler:", e);

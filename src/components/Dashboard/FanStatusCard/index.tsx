@@ -7,6 +7,7 @@ export default function FanStatusCard() {
   const fan1Speed     = useFanStore((s) => s.fan1Speed);
   const tempActive    = useFanStore((s) => s.fan1TempActive);
   const humActive     = useFanStore((s) => s.fan1HumActive);
+  const co2Active     = useFanStore((s) => s.fan1Co2Active);
   const temperature   = useSensorStore((s) => s.temperature);
   const humidity      = useSensorStore((s) => s.humidity);
   const co2           = useSensorStore((s) => s.co2);
@@ -30,6 +31,10 @@ export default function FanStatusCard() {
         <View style={styles.modeItem}>
           <View style={[styles.modeDot, humActive ? styles.dotActive : styles.dotInactive]} />
           <Text style={styles.modeLabel}>Feuchtigkeitsregelung</Text>
+        </View>
+        <View style={styles.modeItem}>
+          <View style={[styles.modeDot, co2Active ? styles.dotActive : styles.dotInactive]} />
+          <Text style={styles.modeLabel}>CO₂-Regelung</Text>
         </View>
       </View>
 
