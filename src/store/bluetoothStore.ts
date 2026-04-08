@@ -12,11 +12,14 @@ import {
   CHAR_LIGHT_BRIGHTNESS,
   CHAR_HISTORY_CTRL,
   CHAR_HISTORY_DATA,
+  CHAR_SLAVE1_STATUS,
+  CHAR_SLAVE1_SENSOR,
 } from "../constants/ble";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useSensorStore } from "./sensorStore";
 import { useFanStore } from "./fanStore";
 import { useHistoryStore, HistoryEntry } from "./historyStore";
+import { useSlave1Store } from "./slave1Store";
 
 export type ConnectionState = "disconnected" | "scanning" | "connecting" | "connected";
 
@@ -33,8 +36,10 @@ export const BLE_CHARACTERISTICS = {
 // Singleton — wird einmal erstellt und wiederverwendet
 const bleManager = new BleManager();
 
-// History-Subscription außerhalb des Stores damit disconnect() darauf zugreifen kann
+// Subscriptions außerhalb des Stores damit disconnect() darauf zugreifen kann
 let _historySubscription: any = null;
+let _slave1SensorSubscription: any = null;
+let _slave1StatusSubscription: any = null;
 
 async function requestAndroidPermissions(): Promise<boolean> {
   if (Platform.OS !== "android") return true;
@@ -172,12 +177,53 @@ export const useBluetoothStore = create<BluetoothStore>((set, get) => {
         }
       );
 
+      // Slave1 Sensordaten (Temp, Hum, Press)
+      _slave1SensorSubscription = connected.monitorCharacteristicForService(
+        SERVICE_UUID,
+        CHAR_SLAVE1_SENSOR,
+        (err: BleError | null, char: any) => {
+          if (err || !char?.value) return;
+          try {
+            const parsed = JSON.parse(atob(char.value));
+            useSlave1Store.getState().setSlave1Sensor(
+              parsed.temp     ?? 0,
+              parsed.humidity ?? 0,
+              parsed.pressure ?? 0
+            );
+          } catch (e) {
+            console.error("[BLE] Slave1Sensor Parse-Fehler:", e);
+          }
+        }
+      );
+
+      // Slave1 Status (Lüfterdrehzahl, Online)
+      _slave1StatusSubscription = connected.monitorCharacteristicForService(
+        SERVICE_UUID,
+        CHAR_SLAVE1_STATUS,
+        (err: BleError | null, char: any) => {
+          if (err || !char?.value) return;
+          try {
+            const parsed = JSON.parse(atob(char.value));
+            useSlave1Store.getState().setSlave1Status(
+              parsed.speed  ?? 0,
+              parsed.online ?? false
+            );
+          } catch (e) {
+            console.error("[BLE] Slave1Status Parse-Fehler:", e);
+          }
+        }
+      );
+
       set({ subscription });
 
       connected.onDisconnected(() => {
         get().subscription?.remove();
         _historySubscription?.remove();
         _historySubscription = null;
+        _slave1SensorSubscription?.remove();
+        _slave1SensorSubscription = null;
+        _slave1StatusSubscription?.remove();
+        _slave1StatusSubscription = null;
         set({
           subscription: null,
           device: null,
@@ -185,6 +231,7 @@ export const useBluetoothStore = create<BluetoothStore>((set, get) => {
           isConnected: false,
         });
         useSensorStore.getState().setSensorData({ temperature: 0, humidity: 0, co2: 0 });
+        useSlave1Store.getState().setOffline();
       });
     } catch (e) {
       console.error("[BLE] Verbindungsfehler:", e);
@@ -260,6 +307,10 @@ export const useBluetoothStore = create<BluetoothStore>((set, get) => {
       get().subscription?.remove();
       _historySubscription?.remove();
       _historySubscription = null;
+      _slave1SensorSubscription?.remove();
+      _slave1SensorSubscription = null;
+      _slave1StatusSubscription?.remove();
+      _slave1StatusSubscription = null;
       await get().device?.cancelConnection();
       set({
         subscription: null,
