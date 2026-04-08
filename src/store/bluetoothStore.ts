@@ -14,6 +14,7 @@ import {
   CHAR_HISTORY_DATA,
   CHAR_SLAVE1_STATUS,
   CHAR_SLAVE1_SENSOR,
+  CHAR_SLAVE1_SETTINGS,
 } from "../constants/ble";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useSensorStore } from "./sensorStore";
@@ -111,6 +112,16 @@ export const useBluetoothStore = create<BluetoothStore>((set, get) => {
         }
       } catch (e) {
         console.warn("[BLE] Fan1Settings lesen fehlgeschlagen:", e);
+      }
+
+      // Slave1 Einstellungen vom ESP lesen
+      try {
+        const char = await connected.readCharacteristicForService(SERVICE_UUID, CHAR_SLAVE1_SETTINGS);
+        if (char?.value) {
+          useSlave1Store.getState().loadSlave1Settings(atob(char.value));
+        }
+      } catch (e) {
+        console.warn("[BLE] Slave1Settings lesen fehlgeschlagen:", e);
       }
 
       // History: Subscription bleibt die gesamte Session aktiv

@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
         maxWidth: 400,
         backgroundColor: colours.background.card,
         borderRadius: 10,
-        paddingTop: 30,
+        paddingTop: 56,
     },
     title: {
         fontSize: 22,
@@ -64,6 +64,37 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: colours.text.primary,
         lineHeight: 20,
+    },
+    // Fan-Selektor
+    fanSelector: {
+        position: "absolute",
+        top: 14,
+        left: 14,
+        flexDirection: "row",
+        gap: 6,
+    },
+    hiddenBtn: {
+        opacity: 0,
+        pointerEvents: "none",
+    },
+    fanTab: {
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: "rgba(255,255,255,0.15)",
+    },
+    fanTabActive: {
+        borderColor: colours.text.accent,
+        backgroundColor: "rgba(57,255,20,0.1)",
+    },
+    fanTabText: {
+        fontSize: 12,
+        color: colours.text.secondary,
+    },
+    fanTabTextActive: {
+        color: colours.text.accent,
+        fontWeight: "600",
     },
     // Modal
     modalOverlay: {
