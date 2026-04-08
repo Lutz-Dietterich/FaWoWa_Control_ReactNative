@@ -135,6 +135,7 @@ export default function SettingsCard() {
                 <OffsetRow label="Einschalt-Drehzahl" value={store.minSpeed} onChange={update("minSpeed")} min={15} max={50} step={5} unit="%" />
                 <View style={styles.modalDivider} />
                 <Text style={styles.modalSectionLabel}>Heizmodus</Text>
+                <OffsetRow label="Dauer" value={store.heatModeDuration} onChange={store.setHeatModeDuration} min={1} max={100000} step={1} unit="min" />
                 <OffsetRow label="CO₂-Sollwert" value={store.heatTargetCo2} onChange={store.setHeatTargetCo2} min={400} max={100000} step={50} unit="ppm" />
                 <OffsetRow label="Temperatur" value={store.heatTargetTemp} onChange={store.setHeatTargetTemp} min={5} max={50} step={1} unit="°C" />
                 <OffsetRow label="Startet" value={store.heatCo2BelowOffset} onChange={store.setHeatCo2BelowOffset} min={0} max={100000} step={50} unit="ppm vor Sollwert" />

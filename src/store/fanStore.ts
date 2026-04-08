@@ -32,6 +32,7 @@ interface FanStore extends Fan1Settings {
   heatCo2BelowOffset: number;
   heatCo2AboveOffset: number;
   heatMinSpeed: number;
+  heatModeDuration: number;
 
   setFanSpeeds: (fan1: number, fan2: number) => void;
   setFan1Status: (speed: number, tempActive: boolean, humActive: boolean, co2Active: boolean) => void;
@@ -46,6 +47,7 @@ interface FanStore extends Fan1Settings {
   setHeatCo2BelowOffset: (value: number) => void;
   setHeatCo2AboveOffset: (value: number) => void;
   setHeatMinSpeed: (value: number) => void;
+  setHeatModeDuration: (value: number) => void;
 }
 
 const DEFAULT_SETTINGS: Fan1Settings = {
@@ -67,9 +69,9 @@ const DEFAULT_HEAT_SETTINGS = {
   heatCo2BelowOffset: 600,
   heatCo2AboveOffset: 1500,
   heatMinSpeed: 15,
+  heatModeDuration: 15,
 };
 
-const HEAT_MODE_DURATION_MS = 15 * 60 * 1000;
 
 let _heatModeBackup: Fan1Settings | null = null;
 let _heatModeTimer: ReturnType<typeof setTimeout> | null = null;
@@ -137,13 +139,13 @@ export const useFanStore = create<FanStore>()(
           co2AboveOffset:  current.heatCo2AboveOffset,
           minSpeed:        current.heatMinSpeed,
         };
-        const endTime = Date.now() + HEAT_MODE_DURATION_MS;
+        const endTime = Date.now() + current.heatModeDuration * 60 * 1000;
         set({ ...heatSettings, heatModeActive: true, heatModeEndTime: endTime });
         sendFan1Settings(heatSettings);
         if (_heatModeTimer) clearTimeout(_heatModeTimer);
         _heatModeTimer = setTimeout(() => {
           useFanStore.getState().deactivateHeatMode();
-        }, HEAT_MODE_DURATION_MS);
+        }, current.heatModeDuration * 60 * 1000);
       },
 
       deactivateHeatMode: () => {
@@ -162,6 +164,7 @@ export const useFanStore = create<FanStore>()(
       setHeatCo2BelowOffset: (value) => set({ heatCo2BelowOffset: value }),
       setHeatCo2AboveOffset: (value) => set({ heatCo2AboveOffset: value }),
       setHeatMinSpeed:       (value) => set({ heatMinSpeed: value }),
+      setHeatModeDuration:   (value) => set({ heatModeDuration: value }),
 
       loadFan1Settings: (json) => {
         try {
@@ -192,6 +195,7 @@ export const useFanStore = create<FanStore>()(
         heatCo2BelowOffset:  state.heatCo2BelowOffset,
         heatCo2AboveOffset:  state.heatCo2AboveOffset,
         heatMinSpeed:        state.heatMinSpeed,
+        heatModeDuration:    state.heatModeDuration,
       }),
     }
   )
