@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, Modal, TouchableOpacity } from "react-native";
+import { View, Text, Modal, TouchableOpacity, ScrollView } from "react-native";
 import SetpointDisplay from "../SetpointDisplay";
 import StepButton from "../../Buttons/StepButton";
 import TempButton from "../../Buttons/TempButton";
@@ -21,12 +21,12 @@ function OffsetRow({
 }) {
   return (
     <View style={styles.offsetRow}>
-      <Text style={styles.offsetLabel}>{label}</Text>
+      <Text style={styles.offsetLabel}>{label}{unit ? ` — ${unit}` : ""}</Text>
       <View style={styles.offsetControls}>
         <TouchableOpacity style={styles.offsetBtn} onPress={() => onChange(Math.max(min, value - step))}>
           <Text style={styles.offsetBtnText}>−</Text>
         </TouchableOpacity>
-        <Text style={styles.offsetValue}>{value}{unit}</Text>
+        <Text style={styles.offsetValue}>{value}</Text>
         <TouchableOpacity style={styles.offsetBtn} onPress={() => onChange(Math.min(max, value + step))}>
           <Text style={styles.offsetBtnText}>+</Text>
         </TouchableOpacity>
@@ -104,11 +104,15 @@ export default function SettingsCard() {
       </View>
 
       <Modal visible={modalVisible} transparent animationType="fade">
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setModalVisible(false)}>
+        <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
+            <TouchableOpacity style={styles.modalCloseBtn} onPress={() => setModalVisible(false)}>
+              <FontAwesome name="close" size={24} color="#39FF14" />
+            </TouchableOpacity>
             <Text style={styles.modalTitle}>
               {isTemp ? "Temperatur" : isHum ? "Luftfeuchte" : "CO₂"} — Feineinstellungen
             </Text>
+            <ScrollView showsVerticalScrollIndicator={false}>
 
             {isTemp && (
               <>
@@ -126,9 +130,16 @@ export default function SettingsCard() {
 
             {isCo2 && (
               <>
-                <OffsetRow label="Startet" value={store.co2BelowOffset} onChange={update("co2BelowOffset")} min={0} max={500} step={50} unit=" ppm vor Sollwert" />
-                <OffsetRow label="100% bei" value={store.co2AboveOffset} onChange={update("co2AboveOffset")} min={0} max={1000} step={50} unit=" ppm über Sollwert" />
+                <OffsetRow label="Startet" value={store.co2BelowOffset} onChange={update("co2BelowOffset")} min={0} max={500} step={50} unit="ppm vor Sollwert" />
+                <OffsetRow label="100% bei" value={store.co2AboveOffset} onChange={update("co2AboveOffset")} min={0} max={1000} step={50} unit="ppm über Sollwert" />
                 <OffsetRow label="Einschalt-Drehzahl" value={store.minSpeed} onChange={update("minSpeed")} min={15} max={50} step={5} unit="%" />
+                <View style={styles.modalDivider} />
+                <Text style={styles.modalSectionLabel}>Heizmodus</Text>
+                <OffsetRow label="CO₂-Sollwert" value={store.heatTargetCo2} onChange={store.setHeatTargetCo2} min={400} max={100000} step={50} unit="ppm" />
+                <OffsetRow label="Temperatur" value={store.heatTargetTemp} onChange={store.setHeatTargetTemp} min={5} max={50} step={1} unit="°C" />
+                <OffsetRow label="Startet" value={store.heatCo2BelowOffset} onChange={store.setHeatCo2BelowOffset} min={0} max={100000} step={50} unit="ppm vor Sollwert" />
+                <OffsetRow label="100% bei" value={store.heatCo2AboveOffset} onChange={store.setHeatCo2AboveOffset} min={0} max={100000} step={50} unit="ppm über Sollwert" />
+                <OffsetRow label="Einschalt-Drehzahl" value={store.heatMinSpeed} onChange={store.setHeatMinSpeed} min={5} max={100} step={5} unit="%" />
                 <View style={styles.modalDivider} />
                 <TouchableOpacity
                   style={styles.calibrateBtn}
@@ -141,8 +152,9 @@ export default function SettingsCard() {
                 </TouchableOpacity>
               </>
             )}
+            </ScrollView>
           </View>
-        </TouchableOpacity>
+        </View>
       </Modal>
     </View>
   );

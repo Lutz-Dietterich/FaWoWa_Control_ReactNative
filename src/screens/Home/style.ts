@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   },
   co2Row: {
     flexDirection: "row",
-    alignItems: "baseline",
+    alignItems: "center",
     justifyContent: "center",
     marginTop: 10,
     gap: 8,

@@ -92,6 +92,45 @@ export default function Co2SettingsCard() {
 
       <View style={styles.divider} />
 
+      <Text style={styles.sectionLabel}>Heizmodus</Text>
+      <OffsetRow
+        label="CO₂-Sollwert"
+        value={store.heatTargetCo2}
+        onChange={store.setHeatTargetCo2}
+        min={400} max={100000} step={50}
+        unit=" ppm"
+      />
+      <OffsetRow
+        label="Temperatur"
+        value={store.heatTargetTemp}
+        onChange={store.setHeatTargetTemp}
+        min={5} max={50} step={1}
+        unit="°C"
+      />
+      <OffsetRow
+        label="Startet"
+        value={store.heatCo2BelowOffset}
+        onChange={store.setHeatCo2BelowOffset}
+        min={0} max={100000} step={50}
+        unit=" ppm vor Sollwert"
+      />
+      <OffsetRow
+        label="100% bei"
+        value={store.heatCo2AboveOffset}
+        onChange={store.setHeatCo2AboveOffset}
+        min={0} max={100000} step={50}
+        unit=" ppm über Sollwert"
+      />
+      <OffsetRow
+        label="Einschalt-Drehzahl"
+        value={store.heatMinSpeed}
+        onChange={store.setHeatMinSpeed}
+        min={5} max={100} step={5}
+        unit="%"
+      />
+
+      <View style={styles.divider} />
+
       <Text style={styles.sectionLabel}>Sensor-Kalibrierung</Text>
       <TouchableOpacity style={styles.calibrateBtn} onPress={calibrate}>
         <Text style={styles.calibrateBtnText}>Sensor auf 700 ppm kalibrieren</Text>

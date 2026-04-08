@@ -9,6 +9,7 @@ import ScreenLayout from "../../components/Layout/ScreenLayout";
 import { useSensorStore } from "../../store/sensorStore";
 import { useFanStore } from "../../store/fanStore";
 import { useWeather } from "../../hooks/useWeather";
+import HeatModeButton from "../../components/Dashboard/HeatModeButton";
 import styles from "./style";
 
 const HomeScreen = () => {
@@ -135,6 +136,7 @@ const HomeScreen = () => {
           <View style={styles.co2Row}>
             <Text style={styles.co2Value}>{co2 ?? "--"}</Text>
             <Text style={styles.co2Unit}>ppm CO₂</Text>
+            <HeatModeButton />
           </View>
         </View>
       </View>
