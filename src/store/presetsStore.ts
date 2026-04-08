@@ -22,6 +22,7 @@ const DEFAULT_LIGHT_PRESET: LightPreset = { color: "#FFFFFF", brightness: 50 };
 
 interface PresetsStore {
   presets: Preset[];
+  activePresetId: string | null;
   addPreset: (preset: Omit<Preset, "id">) => void;
   updatePreset: (id: string, preset: Omit<Preset, "id">) => void;
   deletePreset: (id: string) => void;
@@ -32,6 +33,7 @@ export const usePresetsStore = create<PresetsStore>()(
   persist(
     (set, get) => ({
       presets: [],
+      activePresetId: null,
 
       addPreset: (preset) => {
         const newPreset: Preset = { ...preset, id: Date.now().toString() };
@@ -56,6 +58,7 @@ export const usePresetsStore = create<PresetsStore>()(
           setColor(lightId, preset.lights[lightId].color);
           setBrightness(lightId, preset.lights[lightId].brightness);
         });
+        set({ activePresetId: id });
       },
     }),
     {

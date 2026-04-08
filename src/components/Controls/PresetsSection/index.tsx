@@ -8,7 +8,8 @@ import colours from "../../../theme/colours";
 import styles from "./style";
 
 export default function PresetsSection() {
-  const presets = usePresetsStore((s) => s.presets);
+  const presets        = usePresetsStore((s) => s.presets);
+  const activePresetId = usePresetsStore((s) => s.activePresetId);
 
   const [editMode, setEditMode] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -42,6 +43,7 @@ export default function PresetsSection() {
               key={preset.id}
               preset={preset}
               editMode={editMode}
+              isActive={preset.id === activePresetId}
               onEdit={() => openEdit(preset)}
             />
           ))}

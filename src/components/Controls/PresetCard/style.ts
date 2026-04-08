@@ -11,7 +11,11 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255,255,255,0.1)",
   },
   cardEditMode: {
+    borderColor: colours.status.warning,
+  },
+  cardActive: {
     borderColor: colours.text.accent,
+    backgroundColor: "rgba(57,255,20,0.1)",
   },
   name: {
     fontSize: 14,

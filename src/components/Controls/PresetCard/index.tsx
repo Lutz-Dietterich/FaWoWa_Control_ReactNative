@@ -5,10 +5,11 @@ import styles from "./style";
 interface PresetCardProps {
   preset: Preset;
   editMode: boolean;
+  isActive: boolean;
   onEdit: () => void;
 }
 
-export default function PresetCard({ preset, editMode, onEdit }: PresetCardProps) {
+export default function PresetCard({ preset, editMode, isActive, onEdit }: PresetCardProps) {
   const applyPreset = usePresetsStore((s) => s.applyPreset);
 
   const handlePress = () => {
@@ -20,7 +21,11 @@ export default function PresetCard({ preset, editMode, onEdit }: PresetCardProps
   };
 
   return (
-    <TouchableOpacity style={[styles.card, editMode && styles.cardEditMode]} onPress={handlePress} activeOpacity={0.75}>
+    <TouchableOpacity
+      style={[styles.card, isActive && styles.cardActive, editMode && styles.cardEditMode]}
+      onPress={handlePress}
+      activeOpacity={0.75}
+    >
       <Text style={styles.name} numberOfLines={1}>{preset.name}</Text>
     </TouchableOpacity>
   );
